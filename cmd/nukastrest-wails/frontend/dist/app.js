@@ -6,6 +6,7 @@
 
 let stressState = 'waiting';
 let hasStartedOnce = false;
+let applyTimer = null;
 
 function wireAnimationFallback() {
   const gif = document.getElementById('pip-anim');
@@ -158,6 +159,15 @@ function updateToggleUI() {
   updateQuickButtons();
 }
 
+function scheduleApplyConfig(statusMsg = 'Config autoaplicada') {
+  if (applyTimer) clearTimeout(applyTimer);
+  applyTimer = setTimeout(async () => {
+    await applyConfig();
+    document.getElementById('status').textContent = statusMsg;
+    setStatusTheme(statusMsg, false);
+  }, 180);
+}
+
 function wireToggleCards() {
   document.querySelectorAll('.toggle-card').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -166,7 +176,18 @@ function wireToggleCards() {
       toggles[key] = !toggles[key];
       btn.classList.toggle('active', toggles[key]);
       updateQuickButtons();
+      scheduleApplyConfig();
     });
+  });
+}
+
+function wireAutoApplyControls() {
+  const load = document.getElementById('cfg-load');
+  const mins = document.getElementById('cfg-minutes');
+  [load, mins].forEach((el) => {
+    if (!el) return;
+    el.addEventListener('input', () => scheduleApplyConfig());
+    el.addEventListener('change', () => scheduleApplyConfig());
   });
 }
 
@@ -177,7 +198,7 @@ document.querySelectorAll('.preset-btn').forEach((btn) => {
     toggles[key] = !toggles[key];
     updateQuickButtons();
     updateToggleUI();
-    document.getElementById('status').textContent = `${key.toUpperCase()} ${toggles[key] ? 'ON' : 'OFF'}`;
+    scheduleApplyConfig(`${key.toUpperCase()} ${toggles[key] ? 'ON' : 'OFF'}`);
   });
 });
 
@@ -251,12 +272,6 @@ async function applyConfig() {
   );
 }
 
-document.getElementById('apply-btn').addEventListener('click', async () => {
-  await applyConfig();
-  document.getElementById('status').textContent = 'Config aplicada';
-  setStatusTheme('config aplicada', false);
-});
-
 document.getElementById('start-btn').addEventListener('click', async () => {
   const api = appApi();
   if (!api) return;
@@ -295,6 +310,7 @@ document.querySelectorAll('.export-btn').forEach((btn) => {
 wireWindowControls();
 wireAnimationFallback();
 wireToggleCards();
+wireAutoApplyControls();
 updateToggleUI();
 setStressState('waiting');
 setInterval(refreshStatus, 1500);
