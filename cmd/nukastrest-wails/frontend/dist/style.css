@@ -330,3 +330,17 @@ footer p {
   .stress-anim { margin-top: -10px; }
   .config-anim { margin-top: -18px; }
 }
+
+#apply-btn {
+  border-color: rgba(140,247,160,.6);
+  box-shadow: inset 0 0 0 1px rgba(140,247,160,.15);
+}
+
+#apply-btn:hover,
+#apply-btn:focus-visible {
+  background: #214521;
+  color: #d5ffe0;
+  border-color: #b9ffca;
+  box-shadow: 0 0 0 1px rgba(185,255,202,.65), 0 0 12px rgba(140,247,160,.4);
+  outline: none;
+}
