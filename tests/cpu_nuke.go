@@ -1,4 +1,4 @@
-package tests
+﻿package tests
 
 import (
 	"context"
@@ -35,8 +35,18 @@ func StressCPUNuke(ctx context.Context, duration time.Duration, threads int, loa
 	runCtx, cancel := context.WithTimeout(ctx, duration)
 	defer cancel()
 
+	prevMaxProcs := runtime.GOMAXPROCS(threads)
+	defer runtime.GOMAXPROCS(prevMaxProcs)
+
 	var wg sync.WaitGroup
 	errCh := make(chan int, threads)
+
+	cycle := 100 * time.Millisecond
+	work := time.Duration(loadPercent) * cycle / 100
+	if work <= 0 {
+		work = 1 * time.Millisecond
+	}
+	rest := cycle - work
 
 	for i := 0; i < threads; i++ {
 		wg.Add(1)
@@ -44,25 +54,24 @@ func StressCPUNuke(ctx context.Context, duration time.Duration, threads int, loa
 			defer wg.Done()
 			errors := 0
 			x := seed
-			cycle := 12 * time.Millisecond
-			work := time.Duration(loadPercent) * cycle / 100
-			if work <= 0 {
-				work = 1 * time.Millisecond
-			}
-			rest := cycle - work
 			for {
 				select {
 				case <-runCtx.Done():
 					errCh <- errors
 					return
 				default:
-					deadline := time.Now().Add(work)
-					for time.Now().Before(deadline) {
-						x = math.Sin(x)*math.Cos(x) + math.Sqrt(math.Abs(x)+1.01)
-						if math.IsNaN(x) || math.IsInf(x, 0) {
-							errors++
-							x = seed + 1
-						}
+				}
+
+				workUntil := time.Now().Add(work)
+				iters := 0
+				for time.Now().Before(workUntil) {
+					x = math.Sin(x)*math.Cos(x) + math.Sqrt(math.Abs(x)+1.01)
+					if math.IsNaN(x) || math.IsInf(x, 0) {
+						errors++
+						x = seed + 1
+					}
+					iters++
+					if iters%256 == 0 {
 						select {
 						case <-runCtx.Done():
 							errCh <- errors
@@ -70,13 +79,18 @@ func StressCPUNuke(ctx context.Context, duration time.Duration, threads int, loa
 						default:
 						}
 					}
-					if rest > 0 {
-						select {
-						case <-runCtx.Done():
-							errCh <- errors
-							return
-						case <-time.After(rest):
+				}
+
+				if rest > 0 {
+					timer := time.NewTimer(rest)
+					select {
+					case <-runCtx.Done():
+						if !timer.Stop() {
+							<-timer.C
 						}
+						errCh <- errors
+						return
+					case <-timer.C:
 					}
 				}
 			}
