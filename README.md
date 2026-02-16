@@ -1,4 +1,4 @@
-# NukaStress
+﻿# NukaStress
 
 Sobrevive al apocalipsis nuclear de tu hardware.
 
@@ -248,3 +248,68 @@ Workflow: `.github/workflows/release.yml`
 
 - `workflow_dispatch`: compila y sube artifacts.
 - `push tag v*` (ejemplo `v1.0.0`): compila y publica GitHub Release automaticamente.
+
+## Wails UI (HTML/CSS/JS)
+
+Se agrego una version desktop con `Wails` y frontend web inspirado en tu referencia Pip-Boy.
+
+Entrypoint Wails:
+
+- `./cmd/nukastrest-wails`
+
+Frontend embebido para Wails:
+
+- `cmd/nukastrest-wails/frontend/dist/index.html`
+- `cmd/nukastrest-wails/frontend/dist/style.css`
+- `cmd/nukastrest-wails/frontend/dist/app.js`
+
+Build rapido Wails (Windows):
+
+```powershell
+./build_wails.ps1
+```
+
+Salida:
+
+- `dist/Nukastrest-windows-amd64-wails.exe`
+
+## Linux CLI (Uso Para Usuarios)
+
+No necesitas instalar Go para usar la version CLI en Linux.
+
+1. Descarga el binario `Nukastrest-linux-amd64-cli` desde Releases.
+2. Dale permisos de ejecucion:
+
+```bash
+chmod +x Nukastrest-linux-amd64-cli
+```
+
+3. Ejecuta una prueba rapida (por ejemplo 3 minutos):
+
+```bash
+./Nukastrest-linux-amd64-cli --minutes 3
+```
+
+4. Ejecucion por defecto (10 minutos):
+
+```bash
+./Nukastrest-linux-amd64-cli
+```
+
+Salida esperada: resumen `PASS/FAIL` por prueba en consola.
+
+## Linux CLI (Build Para Mantenedores)
+
+Desde Windows, Linux o macOS puedes compilar el binario Linux CLI con cross-compile:
+
+```bash
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-s -w" -o dist/Nukastrest-linux-amd64-cli ./cmd/nukastrest-cli
+```
+
+En este repo tambien puedes usar:
+
+```powershell
+./build_release.ps1
+```
+
+Ese script deja el archivo en `dist/Nukastrest-linux-amd64-cli`.

@@ -1,0 +1,136 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Nukastrest</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="retro-container pipboy-lite">
+    <div class="window-bar" aria-label="Window controls">
+      <div class="window-controls">
+        <button id="win-min" class="window-btn" title="Minimize">_</button>
+        <button id="win-max" class="window-btn" title="Maximize">[]</button>
+        <button id="win-close" class="window-btn danger" title="Close">X</button>
+      </div>
+    </div>
+
+    <header>
+      <h1>NUKASTREST</h1>
+      <nav role="navigation" aria-label="Primary">
+        <ul>
+          <li><a href="#screen-stress" class="nav-link active">STRESS</a></li>
+          <li><a href="#screen-config" class="nav-link">CONFIG</a></li>
+          <li><a href="#screen-monitor" class="nav-link">MONITOR</a></li>
+          <li><a href="#screen-report" class="nav-link">REPORT</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main id="main-scroll">
+      <section id="screen-stress" class="screen active-screen">
+        <article>
+          <header><h2>STRESS CONTROL</h2></header>
+
+          <div class="control-row">
+            <div class="btn-row left-controls">
+              <button id="start-btn">START</button>
+              <button id="stop-btn">STOP</button>
+            </div>
+            <div class="btn-row quick-controls">
+              <button class="preset-btn" data-preset="cpu">CPU</button>
+              <button class="preset-btn" data-preset="ram">RAM</button>
+              <button class="preset-btn" data-preset="gpu">GPU</button>
+            </div>
+          </div>
+
+          <div class="status-row">
+            <span id="status">Idle</span>
+          </div>
+          <pre id="results">No hay resultados todavia</pre>
+
+          <div id="stress-anim-wrap" class="stress-anim" aria-hidden="false">
+            <div class="anim-frame">
+              <img id="pip-anim" src="assets/esperandostart.gif" alt="Animacion de estado de stress" loading="lazy" />
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section id="screen-config" class="screen">
+        <article>
+          <header><h2>CONFIG</h2></header>
+          <div class="form-grid">
+            <button class="toggle-card active" data-toggle="cfg-cpu">CPU</button>
+            <button class="toggle-card active" data-toggle="cfg-ram">RAM</button>
+            <button class="toggle-card" data-toggle="cfg-gpu">GPU</button>
+            <button class="toggle-card" data-toggle="cfg-disk">DISK</button>
+            <button class="toggle-card" data-toggle="cfg-psu">PSU</button>
+            <button class="toggle-card" data-toggle="cfg-net">NETWORK</button>
+            <label>CPU LOAD % <input type="number" id="cfg-load" min="10" max="100" value="70" /></label>
+            <label>MINUTES <input type="number" id="cfg-minutes" min="1" max="240" value="10" /></label>
+          </div>
+          <div class="btn-row">
+            <button id="apply-btn">APPLY CONFIG</button>
+          </div>
+          <div class="config-anim">
+            <div class="anim-frame">
+              <img id="cfg-anim" src="assets/ajustes.gif" alt="Animacion de ajustes" loading="lazy" />
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section id="screen-monitor" class="screen">
+        <article>
+          <header><h2>MONITOR</h2></header>
+          <div class="grid4">
+            <div class="panel">
+              <h3>CPU</h3><p id="cpu">0.0%</p>
+              <canvas id="chart-cpu" width="360" height="74"></canvas>
+            </div>
+            <div class="panel">
+              <h3>RAM</h3><p id="ram">0.0%</p>
+              <canvas id="chart-ram" width="360" height="74"></canvas>
+            </div>
+            <div class="panel">
+              <h3>DISK I/O</h3><p id="disk">0.0%</p>
+              <canvas id="chart-disk" width="360" height="74"></canvas>
+            </div>
+            <div class="panel">
+              <h3>TEMP</h3><p id="temp">N/A</p><small id="temp-note"></small>
+              <canvas id="chart-temp" width="360" height="74"></canvas>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section id="screen-report" class="screen">
+        <article>
+          <header><h2>REPORT</h2></header>
+          <div class="btn-row">
+            <button data-format="html" class="export-btn">EXPORT HTML</button>
+            <button data-format="json" class="export-btn">EXPORT JSON</button>
+            <button data-format="csv" class="export-btn">EXPORT CSV</button>
+          </div>
+          <p id="export-status"></p>
+        </article>
+      </section>
+    </main>
+
+    <footer>
+      <p>Nukastrest Wails UI</p>
+      <div class="footer-metrics">
+        <span id="f-cpu">CPU 0.0%</span>
+        <span id="f-ram">RAM 0.0%</span>
+        <span id="f-disk">DISK 0.0%</span>
+        <span id="f-temp">TEMP N/A</span>
+      </div>
+    </footer>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
+
+

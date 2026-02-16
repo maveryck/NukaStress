@@ -32,7 +32,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev xorg-dev libxkbcommon-dev
 
-      - name: Build GUI
+      - name: Build GUI (Wails)
         shell: bash
         run: |
           mkdir -p dist
@@ -40,9 +40,9 @@ jobs:
           export GOOS=${{ matrix.goos }}
           export GOARCH=amd64
           if [ "${{ matrix.goos }}" = "windows" ]; then
-            go build -trimpath -ldflags "-s -w -H=windowsgui" -o dist/Nukastrest-${{ matrix.goos }}-amd64-gui${{ matrix.ext }} ./cmd/nukastrest-gui
+            go build -tags production -trimpath -ldflags "-s -w -H=windowsgui" -o dist/Nukastrest-${{ matrix.goos }}-amd64-wails${{ matrix.ext }} ./cmd/nukastrest-wails
           else
-            go build -trimpath -ldflags "-s -w" -o dist/Nukastrest-${{ matrix.goos }}-amd64-gui${{ matrix.ext }} ./cmd/nukastrest-gui
+            go build -tags production -trimpath -ldflags "-s -w" -o dist/Nukastrest-${{ matrix.goos }}-amd64-wails${{ matrix.ext }} ./cmd/nukastrest-wails
           fi
 
       - name: Build CLI
