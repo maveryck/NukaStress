@@ -1,4 +1,7 @@
-﻿# NukaStress
+ <img width="1272" height="805" alt="image" src="https://github.com/user-attachments/assets/25ae511e-ac52-4040-a025-232ad98e1dae" />
+
+ # NukaStress
+
 
 Sobrevive al apocalipsis nuclear de tu hardware.
 
