@@ -185,14 +185,6 @@ func (e *Engine) RunAll(ctx context.Context) []Result {
 	}
 
 	if allowed() {
-		if cfg.EnablePSU {
-			appendResult(tests.StressPSUQuantum(runCtx, effectiveDuration))
-		} else {
-			appendSkipped("PSU")
-		}
-	}
-
-	if allowed() {
 		if cfg.EnableDisk {
 			err := extras.DiskBurst()
 			if err != nil {
@@ -207,18 +199,9 @@ func (e *Engine) RunAll(ctx context.Context) []Result {
 	}
 
 	if allowed() {
-		if cfg.EnableNetwork {
-			attempts := cfg.NetAttempts
-			if attempts <= 0 {
-				attempts = 20
-			}
-			fails := extras.NetProbe(cfg.TargetHost, attempts)
-			limit := 5
-			results = append(results, Result{Name: "Network", Passed: fails < limit, Errors: fails, Message: "Network flood probe finished"})
-			totalErrors += fails
-		} else {
-			appendSkipped("Network")
-		}
+		healthy, msg, errs := extras.DiskHealthCheck(runCtx)
+		results = append(results, Result{Name: "DiskHealth", Passed: healthy, Errors: errs, Message: msg})
+		totalErrors += errs
 	}
 
 	if totalErrors > cfg.MaxErrorCount {

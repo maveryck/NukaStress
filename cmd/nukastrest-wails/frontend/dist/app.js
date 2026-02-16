@@ -1,4 +1,4 @@
-﻿const stressGifMap = {
+const stressGifMap = {
   waiting: 'assets/esperandostart.gif',
   running: 'assets/stressejecutionwhite.gif',
   stopped: 'assets/testdetenido.gif',
@@ -58,8 +58,6 @@ const toggles = {
   ram: true,
   gpu: false,
   disk: false,
-  psu: false,
-  net: false,
 };
 
 const series = {
@@ -118,6 +116,21 @@ function drawAllCharts() {
   drawChart('chart-temp', series.temp, 120);
 }
 
+function renderFindings(findings) {
+  const ul = document.getElementById('findings-list');
+  if (!ul) return;
+  ul.textContent = '';
+  const rows = Array.isArray(findings) && findings.length
+    ? findings
+    : ['Sin fallos detectados en la ultima corrida'];
+
+  rows.forEach((line) => {
+    const li = document.createElement('li');
+    li.textContent = line;
+    ul.appendChild(li);
+  });
+}
+
 function setStatusTheme(statusText = '', running = false) {
   const root = document.documentElement;
   const text = (statusText || '').toLowerCase();
@@ -168,12 +181,22 @@ function scheduleApplyConfig(statusMsg = 'Config autoaplicada') {
   }, 180);
 }
 
+function confirmDiskEnable() {
+  return window.confirm('Advertencia: el test de DISK hace I/O intenso y puede degradar SSD/HDD o afectar datos temporales. No recomendado en equipo de uso diario. Continuar?');
+}
+
 function wireToggleCards() {
   document.querySelectorAll('.toggle-card').forEach((btn) => {
     btn.addEventListener('click', () => {
       const key = (btn.dataset.toggle || '').replace('cfg-', '');
       if (!key) return;
-      toggles[key] = !toggles[key];
+
+      const next = !toggles[key];
+      if (key === 'disk' && next && !confirmDiskEnable()) {
+        return;
+      }
+
+      toggles[key] = next;
       btn.classList.toggle('active', toggles[key]);
       updateQuickButtons();
       scheduleApplyConfig();
@@ -226,6 +249,7 @@ async function refreshStatus() {
     const disk = Number(st.snapshot.diskPercent || 0);
 
     document.getElementById('results').textContent = st.lastResults || '';
+    renderFindings(st.findings);
     document.getElementById('cpu').textContent = `${cpu.toFixed(1)}%`;
     document.getElementById('ram').textContent = `${ram.toFixed(1)}%`;
     document.getElementById('disk').textContent = `${disk.toFixed(1)}%`;
@@ -265,8 +289,8 @@ async function applyConfig() {
     toggles.gpu,
     toggles.ram,
     toggles.disk,
-    toggles.psu,
-    toggles.net,
+    false,
+    false,
     parseInt(document.getElementById('cfg-load').value || '70', 10),
     parseInt(document.getElementById('cfg-minutes').value || '10', 10)
   );

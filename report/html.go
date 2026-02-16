@@ -21,9 +21,14 @@ func WriteHTML(results []core.Result, history []core.Snapshot) (string, error) {
 
 	b := &strings.Builder{}
 	b.WriteString("<!doctype html><html><head><meta charset=\"utf-8\"><title>NukaStress Report</title>")
-	b.WriteString("<style>body{font-family:Segoe UI,Arial,sans-serif;background:#0b0f0b;color:#b8ffbf;padding:24px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #245a2a;padding:8px}th{background:#143017}.ok{color:#72ff8a}.bad{color:#ff4b4b}</style>")
+	b.WriteString("<style>body{font-family:Segoe UI,Arial,sans-serif;background:#0b0f0b;color:#b8ffbf;padding:24px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #245a2a;padding:8px}th{background:#143017}.ok{color:#72ff8a}.bad{color:#ff4b4b}.finding{margin:.3rem 0;color:#ffb4b4}</style>")
 	b.WriteString("</head><body><h1>NukaStress - Rad Report</h1>")
 	b.WriteString("<p>Test Nuclear completado. Sobrevivientes en el resumen inferior.</p>")
+	b.WriteString("<h2>Fallos Detectados</h2><ul>")
+	for _, line := range collectFindings(results) {
+		b.WriteString(fmt.Sprintf("<li class=\"finding\">%s</li>", line))
+	}
+	b.WriteString("</ul>")
 	b.WriteString("<table><thead><tr><th>Test</th><th>Status</th><th>Errors</th><th>Duration</th><th>Message</th></tr></thead><tbody>")
 	for _, r := range results {
 		st := "PASS"
@@ -49,4 +54,20 @@ func WriteHTML(results []core.Result, history []core.Snapshot) (string, error) {
 		return "", err
 	}
 	return path, nil
+}
+
+func collectFindings(results []core.Result) []string {
+	findings := make([]string, 0, len(results))
+	for _, r := range results {
+		if strings.Contains(strings.ToLower(r.Message), "omitido") {
+			continue
+		}
+		if r.Errors > 0 || !r.Passed {
+			findings = append(findings, fmt.Sprintf("%s: %s", r.Name, r.Message))
+		}
+	}
+	if len(findings) == 0 {
+		return []string{"Sin fallos detectados en la ultima corrida"}
+	}
+	return findings
 }

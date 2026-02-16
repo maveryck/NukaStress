@@ -25,6 +25,7 @@ type StatusDTO struct {
 	StatusText  string      `json:"statusText"`
 	Snapshot    SnapshotDTO `json:"snapshot"`
 	LastResults string      `json:"lastResults"`
+	Findings    []string    `json:"findings"`
 }
 
 type App struct {
@@ -61,8 +62,10 @@ func (a *App) SetConfig(cpu, gpu, ram, disk, psu, network bool, cpuLoadPercent i
 	cfg.EnableGPU = gpu
 	cfg.EnableRAM = ram
 	cfg.EnableDisk = disk
-	cfg.EnablePSU = psu
-	cfg.EnableNetwork = network
+	cfg.EnablePSU = false
+	cfg.EnableNetwork = false
+	_ = psu
+	_ = network
 	if cpuLoadPercent < 10 {
 		cpuLoadPercent = 10
 	}
@@ -138,7 +141,24 @@ func (a *App) GetStatus() StatusDTO {
 		StatusText:  statusText,
 		Snapshot:    s,
 		LastResults: formatResults(run),
+		Findings:    collectFindings(run),
 	}
+}
+
+func collectFindings(results []core.Result) []string {
+	findings := make([]string, 0, len(results))
+	for _, r := range results {
+		if strings.Contains(strings.ToLower(r.Message), "omitido") {
+			continue
+		}
+		if r.Errors > 0 || !r.Passed {
+			findings = append(findings, fmt.Sprintf("%s: %s", r.Name, r.Message))
+		}
+	}
+	if len(findings) == 0 && len(results) > 0 {
+		findings = append(findings, "Sin fallos detectados en la ultima corrida")
+	}
+	return findings
 }
 
 func formatResults(results []core.Result) string {
