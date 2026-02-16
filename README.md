@@ -313,3 +313,22 @@ En este repo tambien puedes usar:
 ```
 
 Ese script deja el archivo en `dist/Nukastrest-linux-amd64-cli`.
+
+## Distribucion recomendada (actualizado)
+
+### Windows (primero)
+
+Descarga y ejecuta directamente el binario principal:
+
+- `Nukastrest-windows-amd64-wails.exe`
+
+### Linux (sin asset en release)
+
+En Linux usamos flujo por clone del repo:
+
+```bash
+git clone https://github.com/maveryck/NukaStress.git
+cd NukaStress
+chmod +x ./dist/Nukastrest-linux-amd64-cli
+./dist/Nukastrest-linux-amd64-cli
+```
